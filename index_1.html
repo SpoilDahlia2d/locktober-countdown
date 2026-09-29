@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Locktober</title>
+<meta name="robots" content="noindex">
+<meta name="theme-color" content="#0e0510">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Tilt+Neon&family=Jost:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0e0510;
+    --neon: #ff3fa4;
+    --core: #ffd3ec;
+    --dim: #c77aa6;
+    --display: "Tilt Neon", "Trebuchet MS", "Helvetica Neue", sans-serif;
+    --body: "Jost", "Helvetica Neue", Arial, sans-serif;
+    --glow: 0 0 4px var(--core), 0 0 12px var(--neon), 0 0 28px var(--neon), 0 0 64px rgba(255,63,164,.65);
+  }
+  * { box-sizing: border-box; margin: 0; }
+  html, body { height: 100%; }
+  body {
+    background: radial-gradient(ellipse at 50% 45%, #2a0a26 0%, var(--bg) 70%);
+    color: var(--core);
+    font-family: var(--body);
+    display: grid;
+    place-items: center;
+    overflow: hidden;
+    padding: max(20px, env(safe-area-inset-top)) 16px max(20px, env(safe-area-inset-bottom));
+  }
+
+  /* Impulsi rosa che partono dal centro */
+  .pulse { position: fixed; inset: 0; display: grid; place-items: center; pointer-events: none; }
+  .pulse span {
+    grid-area: 1 / 1;
+    width: 30vmin; height: 30vmin;
+    border-radius: 50%;
+    border: 2px solid var(--neon);
+    box-shadow: 0 0 24px var(--neon), inset 0 0 24px var(--neon);
+    opacity: 0;
+    animation: ring 3.6s cubic-bezier(.2,.6,.3,1) infinite;
+  }
+  .pulse span:nth-child(2) { animation-delay: 1.2s; }
+  .pulse span:nth-child(3) { animation-delay: 2.4s; }
+  @keyframes ring {
+    0%   { transform: scale(.4); opacity: .75; }
+    100% { transform: scale(4.2); opacity: 0; }
+  }
+
+  main { position: relative; z-index: 1; text-align: center; width: 100%; max-width: 900px; }
+
+  h1 {
+    font-family: var(--display);
+    font-weight: 400;
+    font-size: clamp(2.6rem, 11vw, 6.5rem);
+    letter-spacing: .04em;
+    color: var(--core);
+    text-shadow: var(--glow);
+    animation: flicker 1.6s ease-out 1 both;
+  }
+  @keyframes flicker {
+    0%, 18%, 22%, 25%, 53% { opacity: .25; text-shadow: none; }
+    20%, 24%, 55%, 100% { opacity: 1; text-shadow: var(--glow); }
+  }
+
+  .clock {
+    margin-top: clamp(28px, 7vh, 64px);
+    display: flex; justify-content: center; align-items: flex-start;
+    gap: clamp(4px, 1.6vw, 16px);
+  }
+  .unit { min-width: 0; flex: 0 1 auto; padding: 0 clamp(4px, 1.4vw, 14px); position: relative; }
+  .num {
+    display: block;
+    font-family: var(--display);
+    font-size: clamp(3rem, 15vw, 8.5rem);
+    line-height: 1;
+    min-width: 2ch;
+    color: var(--core);
+    text-shadow: var(--glow);
+    font-variant-numeric: tabular-nums;
+    animation: breathe 3.6s ease-in-out infinite;
+  }
+  @keyframes breathe {
+    0%, 100% { text-shadow: 0 0 4px var(--core), 0 0 10px var(--neon), 0 0 22px var(--neon); }
+    12%      { text-shadow: var(--glow), 0 0 90px var(--neon); }
+  }
+  .label {
+    display: block; margin-top: 10px;
+    font-size: clamp(.7rem, 2.4vw, 1rem);
+    letter-spacing: .14em;
+    color: var(--dim);
+  }
+  .sep {
+    font-family: var(--display);
+    font-size: clamp(2.4rem, 12vw, 6.5rem);
+    line-height: 1.1;
+    color: var(--neon);
+    text-shadow: var(--glow);
+    animation: blink 1s steps(1) infinite;
+  }
+  @keyframes blink { 50% { opacity: .25; } }
+
+  #go { display: none; margin-top: 44px; }
+  #go a {
+    display: inline-block; padding: 16px 40px;
+    border: 2px solid var(--neon); border-radius: 999px;
+    color: var(--core); text-decoration: none; font-weight: 500; letter-spacing: .06em;
+    box-shadow: 0 0 14px var(--neon), inset 0 0 14px rgba(255,63,164,.5);
+    text-shadow: 0 0 8px var(--neon);
+  }
+  #go a:focus-visible { outline: 2px solid var(--core); outline-offset: 5px; }
+  .ended .pulse span { animation-duration: 1.8s; }
+  .ended .sep { animation: none; }
+
+  /* Controllo audio */
+  .snd-wrap { position: fixed; left: 0; right: 0; bottom: max(20px, env(safe-area-inset-bottom)); text-align: center; z-index: 2; }
+  #snd {
+    font: 500 .95rem var(--body); letter-spacing: .06em;
+    padding: 12px 30px; cursor: pointer;
+    background: rgba(14,5,16,.6); color: var(--core);
+    border: 2px solid var(--neon); border-radius: 999px;
+    box-shadow: 0 0 12px var(--neon), inset 0 0 12px rgba(255,63,164,.4);
+    text-shadow: 0 0 8px var(--neon);
+  }
+  #snd[aria-pressed="true"] { background: rgba(255,63,164,.22); }
+  #snd:focus-visible { outline: 2px solid var(--core); outline-offset: 5px; }
+  .snd-hint { margin-top: 8px; font-size: .8rem; color: var(--dim); }
+
+  @media (prefers-reduced-motion: reduce) {
+    .pulse span, h1, .num, .sep { animation: none; }
+    .pulse span:first-child { opacity: .25; transform: scale(2); }
+  }
+</style>
+</head>
+<body>
+<div class="pulse" aria-hidden="true"><span></span><span></span><span></span></div>
+
+<main id="app">
+  <h1>Locktober</h1>
+  <div class="clock" role="timer" aria-label="Tempo rimasto a Locktober">
+    <div class="unit"><span class="num" id="d">00</span><span class="label">giorni</span></div>
+    <span class="sep">:</span>
+    <div class="unit"><span class="num" id="h">00</span><span class="label">ore</span></div>
+    <span class="sep">:</span>
+    <div class="unit"><span class="num" id="m">00</span><span class="label">minuti</span></div>
+    <span class="sep">:</span>
+    <div class="unit"><span class="num" id="s">00</span><span class="label">secondi</span></div>
+  </div>
+  <div id="go"><a id="link" href="#">Entra</a></div>
+</main>
+
+<div class="snd-wrap">
+  <button id="snd" type="button" aria-pressed="false">Attiva audio</button>
+  <p class="snd-hint">Meglio con le cuffie</p>
+</div>
+
+<script>
+  // ===== CONFIGURAZIONE =====
+  // Fuso +02:00 = ora legale italiana: la scadenza è la stessa per tutti i visitatori.
+  const DEADLINE = new Date("2026-10-01T00:00:00+02:00"); // inizio Locktober
+  const LINK = ""; // incolla qui il link: a fine conto alla rovescia compare il pulsante "Entra"
+  // ==========================
+
+  const $ = id => document.getElementById(id);
+  const pad = n => String(n).padStart(2, "0");
+
+  function tick() {
+    const left = DEADLINE - Date.now();
+    if (left <= 0) {
+      ["d","h","m","s"].forEach(k => $(k).textContent = "00");
+      document.body.classList.add("ended");
+      if (LINK) { $("link").href = LINK; $("go").style.display = "block"; }
+      clearInterval(timer);
+      return;
+    }
+    const sec = Math.floor(left / 1000);
+    $("d").textContent = pad(Math.floor(sec / 86400));
+    $("h").textContent = pad(Math.floor(sec % 86400 / 3600));
+    $("m").textContent = pad(Math.floor(sec % 3600 / 60));
+    $("s").textContent = pad(sec % 60);
+  }
+  tick();
+  const timer = setInterval(tick, 1000);
+</script>
+<script>
+  // ===== AUDIO IPNOTICO (generato nel browser, nessun file da caricare) =====
+  (function () {
+    const VOLUME = 0.35;          // volume generale: 0 (muto) - 1
+    const PULSE_HZ = 1 / 1.2;     // un battito ogni 1,2 s, come gli anelli rosa
+    const btn = document.getElementById("snd");
+    let ctx, master, on = false;
+
+    function osc(type, freq, dest) {
+      const o = ctx.createOscillator(); o.type = type; o.frequency.value = freq;
+      o.connect(dest); o.start(); return o;
+    }
+    function build() {
+      const AC = window.AudioContext || window.webkitAudioContext;
+      if (!AC) return false;
+      ctx = new AC();
+      master = ctx.createGain(); master.gain.value = 0; master.connect(ctx.destination);
+
+      // Drone grave con filtro che si apre e chiude lentamente
+      const lp = ctx.createBiquadFilter(); lp.type = "lowpass"; lp.frequency.value = 500; lp.Q.value = 4;
+      const drone = ctx.createGain(); drone.gain.value = 0.22;
+      lp.connect(drone); drone.connect(master);
+      [55, 55.25, 82.41, 110.1].forEach(f => osc("triangle", f, lp));
+      const sweep = ctx.createGain(); sweep.gain.value = 260; sweep.connect(lp.frequency);
+      osc("sine", 0.07, sweep);
+
+      // Battimento binaurale a 6 Hz (si sente con le cuffie): 180 Hz a sinistra, 186 Hz a destra
+      [[180, -1], [186, 1]].forEach(([f, pan]) => {
+        const g = ctx.createGain(); g.gain.value = 0.07;
+        const p = ctx.createStereoPanner ? ctx.createStereoPanner() : g;
+        if (p !== g) { p.pan.value = pan; g.connect(p); p.connect(master); } else { g.connect(master); }
+        osc("sine", f, g);
+      });
+
+      // Pad che pulsa al ritmo degli anelli
+      const padG = ctx.createGain(); padG.gain.value = 0.05; padG.connect(master);
+      osc("sine", 220, padG); osc("sine", 329.63, padG);
+      const depth = ctx.createGain(); depth.gain.value = 0.05; depth.connect(padG.gain);
+      osc("sine", PULSE_HZ, depth);
+      return true;
+    }
+
+    btn.addEventListener("click", async () => {
+      if (!ctx && !build()) { btn.disabled = true; btn.textContent = "Audio non supportato"; return; }
+      on = !on;
+      const t = ctx.currentTime;
+      master.gain.cancelScheduledValues(t);
+      if (on) { await ctx.resume(); master.gain.setTargetAtTime(VOLUME, ctx.currentTime, 1.5); }
+      else { master.gain.setTargetAtTime(0, t, 0.4); setTimeout(() => { if (!on) ctx.suspend(); }, 2000); }
+      btn.setAttribute("aria-pressed", on);
+      btn.textContent = on ? "Disattiva audio" : "Attiva audio";
+    });
+
+    // Pausa l'audio quando la scheda non è visibile
+    document.addEventListener("visibilitychange", () => {
+      if (!ctx || !on) return;
+      document.hidden ? ctx.suspend() : ctx.resume();
+    });
+  })();
+</script>
+</body>
+</html>
