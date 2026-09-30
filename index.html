@@ -140,19 +140,19 @@
 <main id="app">
   <h1>Locktober</h1>
   <div class="clock" role="timer" aria-label="Tempo rimasto a Locktober">
-    <div class="unit"><span class="num" id="d">00</span><span class="label">giorni</span></div>
+    <div class="unit"><span class="num" id="d">00</span><span class="label">day</span></div>
     <span class="sep">:</span>
-    <div class="unit"><span class="num" id="h">00</span><span class="label">ore</span></div>
+    <div class="unit"><span class="num" id="h">00</span><span class="label">hour</span></div>
     <span class="sep">:</span>
-    <div class="unit"><span class="num" id="m">00</span><span class="label">minuti</span></div>
+    <div class="unit"><span class="num" id="m">00</span><span class="label">minute</span></div>
     <span class="sep">:</span>
-    <div class="unit"><span class="num" id="s">00</span><span class="label">secondi</span></div>
+    <div class="unit"><span class="num" id="s">00</span><span class="label">second</span></div>
   </div>
   <div id="go"><a id="link" href="#">Entra</a></div>
 </main>
 
 <div class="snd-wrap">
-  <button id="snd" type="button" aria-pressed="false">Attiva audio</button>
+  <button id="snd" type="button" aria-pressed="false">Active audio</button>
   <p class="snd-hint">Are you ready to be locked up?</p>
 </div>
 
@@ -234,7 +234,7 @@
       if (on) { await ctx.resume(); master.gain.setTargetAtTime(VOLUME, ctx.currentTime, 1.5); }
       else { master.gain.setTargetAtTime(0, t, 0.4); setTimeout(() => { if (!on) ctx.suspend(); }, 2000); }
       btn.setAttribute("aria-pressed", on);
-      btn.textContent = on ? "Disattiva audio" : "Attiva audio";
+      btn.textContent = on ? "Deactive audio" : "Active audio";
     });
 
     // Pausa l'audio quando la scheda non è visibile
